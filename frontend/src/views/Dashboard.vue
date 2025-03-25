@@ -1,6 +1,5 @@
 <template>
   <div class="dashboard-container" role="main">
-    <!-- Skip link pour l'accessibilité -->
     <a href="#main-content" class="skip-link">
       Aller au contenu principal
     </a>
@@ -8,17 +7,17 @@
     <div id="main-content">
       <h1 class="dashboard-title" tabindex="0">Mon Tableau de Bord</h1>
 
-      <!-- Section Profil avec navigation ARIA -->
+      <!-- Section Profil -->
       <section 
         class="profile-section" 
-        aria-labelledby="profile-title"
+        aria-labelledby="profile-details-title"
         role="region"
       >
-        <h2 id="profile-title" tabindex="0">Mon Profil</h2>
+        <h2 id="profile-details-title" tabindex="0">Mon Profil</h2>
         
-        <!-- Mode affichage -->
+        <!-- Mode affichage profil -->
         <div 
-          v-if="!isEditing" 
+          v-if="!isEditingProfile" 
           class="profile-info"
           role="group"
           aria-label="Informations du profil"
@@ -32,8 +31,8 @@
 
           <div class="button-group" role="group" aria-label="Actions du profil">
             <button 
-              @click="toggleEdit"
-              @keyup.enter="toggleEdit"
+              @click="toggleProfileEdit"
+              @keyup.enter="toggleProfileEdit"
               class="btn-primary"
               aria-label="Modifier mon profil"
             >
@@ -48,11 +47,11 @@
             </button>
           </div>
         </div>
-
-        <!-- Mode édition -->
+        
+        <!-- Mode édition profil -->
         <form 
           v-else 
-          @submit.prevent="updateProfile" 
+          @submit.prevent="updateProfileDetails" 
           class="edit-form"
           aria-label="Formulaire de modification du profil"
         >
@@ -61,7 +60,7 @@
             <input 
               type="email" 
               id="email" 
-              v-model="editedUser.email" 
+              v-model="editedProfile.email" 
               class="input-field"
               required
               :aria-invalid="!!emailError"
@@ -76,7 +75,7 @@
               {{ emailError }}
             </div>
           </div>
-
+          
           <div class="form-group">
             <label for="currentPassword" id="current-password-label">
               Mot de passe actuel
@@ -99,7 +98,7 @@
               <input 
                 :type="showPassword ? 'text' : 'password'"
                 id="newPassword" 
-                v-model="editedUser.newPassword" 
+                v-model="editedProfile.newPassword" 
                 class="input-field"
                 aria-describedby="password-requirements"
                 :minlength="8"
@@ -119,23 +118,23 @@
               Le mot de passe doit contenir au moins 8 caractères
             </div>
           </div>
-
+          
           <div 
             class="button-group" 
             role="group" 
-            aria-label="Actions de modification"
+            aria-label="Actions de modification du profil"
           >
             <button 
               type="submit" 
               class="btn-success"
-              :disabled="isSubmitting"
-              aria-busy="isSubmitting"
+              :disabled="isSubmittingProfile"
+              aria-busy="isSubmittingProfile"
             >
-              {{ isSubmitting ? 'Enregistrement...' : 'Sauvegarder' }}
+              {{ isSubmittingProfile ? 'Enregistrement...' : 'Sauvegarder' }}
             </button>
             <button 
               type="button" 
-              @click="toggleEdit" 
+              @click="toggleProfileEdit" 
               class="btn-secondary"
               aria-label="Annuler les modifications"
             >
@@ -165,7 +164,7 @@
             role="listitem"
           >
             <img 
-              :src="textile.image_url" 
+              :src="textile.image_url || 'src/assets/colorful-sewing-threads-background-closeup.jpg'" 
               :alt="`Image de ${textile.name}`"
               class="textile-image"
             >
@@ -174,14 +173,30 @@
               <p>{{ textile.description }}</p>
               <p>
                 <strong>Catégorie:</strong> 
-                <span>{{ textile.category.name }}</span>
+                <span>{{ textile.category && textile.category.name ? textile.category.name : 'Non disponible' }}</span>
               </p>
+              
+              <!-- Infos détaillées des favoris (nouvelles colonnes) -->
+              <div class="favorite-details">
+                <p data-testid="frequency-display"><strong>Fréquence d'utilisation:</strong> {{ textile.frequency_of_use }}</p>
+                <p v-if="textile.usage_context"><strong>Contexte:</strong> {{ textile.usage_context }}</p>
+                <p v-if="textile.personal_notes"><strong>Notes:</strong> {{ textile.personal_notes }}</p>
+                
+                <button 
+                  @click="editFavoriteDetails(textile)"
+                  class="btn-primary btn-sm"
+                  aria-label="Modifier les détails"
+                >
+                  <i class="fa fa-pencil" aria-hidden="true"></i> Détails
+                </button>
+              </div>
+              
               <button 
                 @click="removeFavorite(textile.id)"
                 class="btn-danger"
                 :aria-label="`Retirer ${textile.name} des favoris`"
               >
-                Retirer des favoris
+                <i class="fa fa-trash" aria-hidden="true"></i> Retirer des favoris
               </button>
             </div>
           </div>
@@ -207,7 +222,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import api from '@/axios';
@@ -218,13 +233,15 @@ const authStore = useAuthStore();
 
 // Refs pour la gestion des états
 const user = ref({});
-const editedUser = ref({});
 const favorites = ref([]);
-const isEditing = ref(false);
 const showPassword = ref(false);
-const isSubmitting = ref(false);
 const emailError = ref('');
 const currentPassword = ref('');
+
+// Refs pour le profil
+const editedProfile = ref({});
+const isEditingProfile = ref(false);
+const isSubmittingProfile = ref(false);
 
 // Valider le formulaire avant soumission
 const validateForm = () => {
@@ -233,13 +250,13 @@ const validateForm = () => {
 
   // Validation de l'email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(editedUser.value.email)) {
+  if (!emailRegex.test(editedProfile.value.email)) {
     emailError.value = 'Veuillez entrer une adresse email valide';
     return false;
   }
 
   // Validation du mot de passe (s'il est modifié)
-  if (editedUser.value.newPassword && editedUser.value.newPassword.length < 8) {
+  if (editedProfile.value.newPassword && editedProfile.value.newPassword.length < 8) {
     Swal.fire({
       icon: 'error',
       title: 'Mot de passe invalide',
@@ -280,6 +297,7 @@ const loadUserData = async () => {
     };
     
     const response = await api.get('/profile', config);
+    console.log("Réponse profil:", response.data);
     
     // Gérer différentes structures de réponse possibles
     if (response.data && response.data.user) {
@@ -289,16 +307,13 @@ const loadUserData = async () => {
     } else {
       user.value = response.data;
     }
-    
-    editedUser.value = { ...user.value };
   } catch (error) {
     console.error('Erreur lors du chargement du profil:', error);
     handleApiError(error, 'Impossible de charger le profil');
   }
 };
 
-// Charger les favoris
-// Charger les favoris
+// Charger les favoris directement depuis l'API
 const loadFavorites = async () => {
   try {
     const token = localStorage.getItem('token');
@@ -307,21 +322,130 @@ const loadFavorites = async () => {
     };
     
     const response = await api.get('/users/favorites', config);
-    console.log("Réponse favoris:", response.data);
+    console.log("Réponse favoris brute:", response.data);
     
-    // Gestion des différentes structures de données possibles
-    if (response.data && Array.isArray(response.data.favorites)) {
+    // Extraire les favoris selon la structure
+    if (response.data && response.data.favorites) {
       favorites.value = response.data.favorites;
     } else if (Array.isArray(response.data)) {
       favorites.value = response.data;
-    } else if (response.data && response.data.success && Array.isArray(response.data.data)) {
-      favorites.value = response.data.data;
     } else {
       favorites.value = [];
     }
+    
+    console.log("Favoris chargés:", favorites.value);
   } catch (error) {
     console.error('Erreur lors du chargement des favoris:', error);
     handleApiError(error, 'Impossible de charger les favoris');
+    favorites.value = [];
+  }
+};
+
+// Basculer l'édition du profil
+const toggleProfileEdit = () => {
+  isEditingProfile.value = !isEditingProfile.value;
+  
+  // Réinitialiser les valeurs lors de l'annulation
+  if (!isEditingProfile.value) {
+    editedProfile.value = { 
+      email: user.value.email
+    };
+    currentPassword.value = '';
+    emailError.value = '';
+  }
+};
+
+// Mise à jour du profil
+const updateProfileDetails = async () => {
+  if (!validateForm()) return;
+
+  try {
+    isSubmittingProfile.value = true;
+    
+    const token = localStorage.getItem('token');
+    const config = {
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    };
+    
+    // Données pour la mise à jour du profil principal
+    const profileData = {
+      email: editedProfile.value.email,
+      password: currentPassword.value  // 
+    };
+    
+    if (editedProfile.value.newPassword) {
+      profileData.newPassword = editedProfile.value.newPassword;
+    }
+    
+    console.log('Données envoyées pour mise à jour:', profileData);
+    
+    // Mettre à jour le profil principal
+    const mainResponse = await api.put('/profile', profileData, config);
+    console.log('Réponse mise à jour profil principal:', mainResponse.data);
+    
+    // Vérifier la mise à jour
+    if (mainResponse.data.success || mainResponse.status === 200) {
+      // Mettre à jour les données locales
+      if (mainResponse.data.user) {
+        user.value = mainResponse.data.user;
+      } else if (mainResponse.data) {
+        user.value = mainResponse.data;
+      }
+      
+      // Sortir du mode édition
+      isEditingProfile.value = false;
+      currentPassword.value = '';
+      
+      // Notification de succès
+      await Swal.fire({
+        icon: 'success',
+        title: 'Profil mis à jour!',
+        text: 'Vos informations ont été modifiées avec succès',
+        timer: 1500,
+        showConfirmButton: false,
+        background: '#30343F',
+        color: '#FFD9DA'
+      });
+      
+      // Si mot de passe modifié, déconnexion
+      if (editedProfile.value.newPassword) {
+        await Swal.fire({
+          icon: 'info',
+          title: 'Mot de passe mis à jour',
+          text: 'Veuillez vous reconnecter avec votre nouveau mot de passe',
+          confirmButtonText: 'OK',
+          background: '#30343F',
+          color: '#FFD9DA'
+        });
+        
+        authStore.logout();
+        router.push('/login');
+      }
+    } else {
+      throw new Error('La mise à jour a échoué');
+    }
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du profil:', error);
+    let errorMessage = 'Impossible de mettre à jour le profil';
+    
+    if (error.response) {
+      errorMessage = error.response.data?.message || errorMessage;
+      console.log('Réponse d\'erreur détaillée:', error.response.data);
+    }
+    
+    Swal.fire({
+      icon: 'error',
+      title: 'Erreur',
+      text: errorMessage,
+      confirmButtonText: 'OK',
+      background: '#30343F',
+      color: '#FFD9DA'
+    });
+  } finally {
+    isSubmittingProfile.value = false;
   }
 };
 
@@ -334,7 +458,9 @@ const removeFavorite = async (textileId) => {
     };
     
     await api.delete(`/users/favorites/${textileId}`, config);
-    await loadFavorites();
+    
+    // Mettre à jour localement sans recharger tous les favoris
+    favorites.value = favorites.value.filter(fav => fav.id !== textileId);
     
     Swal.fire({
       icon: 'success',
@@ -350,70 +476,113 @@ const removeFavorite = async (textileId) => {
   }
 };
 
-// Retirer un favori
-
-
-// Mise à jour du profil
-const updateProfile = async () => {
-  if (!validateForm()) return;
-
-  try {
-    console.log('Données de mise à jour :', {
-      email: editedUser.value.email,
-      currentPassword: currentPassword.value ? '****' : 'Non fourni',
-      newPasswordProvided: !!editedUser.value.newPassword
-    });
-
-    const updateData = {
-      email: editedUser.value.email,
-      currentPassword: currentPassword.value
-    };
-    
-    if (editedUser.value.newPassword) {
-      updateData.newPassword = editedUser.value.newPassword;
+// Modification des détails d'un favori
+const editFavoriteDetails = async (textile) => {
+  // Mémoriser les valeurs actuelles
+  const currentFrequency = textile.frequency_of_use || 'Occasionnellement';
+  const currentUsage = textile.usage_context || '';
+  const currentNotes = textile.personal_notes || '';
+  
+  const { value: favoriteData } = await Swal.fire({
+    title: `Modifier les détails pour ${textile.name}`,
+    html: `
+      <div class="favorite-form">
+        <div class="form-group">
+          <label for="frequency">Fréquence d'utilisation</label>
+          <select id="frequency" class="swal2-input">
+            <option value="Fréquemment" ${currentFrequency === 'Fréquemment' ? 'selected' : ''}>Fréquemment</option>
+            <option value="Régulièrement" ${currentFrequency === 'Régulièrement' ? 'selected' : ''}>Régulièrement</option>
+            <option value="Occasionnellement" ${currentFrequency === 'Occasionnellement' ? 'selected' : ''}>Occasionnellement</option>
+            <option value="Rarement" ${currentFrequency === 'Rarement' ? 'selected' : ''}>Rarement</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="usage">Contexte d'utilisation</label>
+          <input id="usage" class="swal2-input" value="${currentUsage}" placeholder="Ex: Vêtements, Ameublement...">
+        </div>
+        <div class="form-group">
+          <label for="notes">Notes personnelles</label>
+          <textarea id="notes" class="swal2-textarea" placeholder="Vos notes sur ce textile...">${currentNotes}</textarea>
+        </div>
+      </div>
+    `,
+    focusConfirm: false,
+    showCancelButton: true,
+    confirmButtonText: 'Enregistrer',
+    cancelButtonText: 'Annuler',
+    background: '#30343F',
+    color: '#FFD9DA',
+    preConfirm: () => {
+      const frequencyVal = document.getElementById('frequency').value;
+      const usageVal = document.getElementById('usage').value;
+      const notesVal = document.getElementById('notes').value;
+      
+      return {
+        frequency_of_use: frequencyVal || 'Occasionnellement',
+        usage_context: usageVal || null,
+        personal_notes: notesVal || null
+      };
     }
-    
-    const response = await api.put('/profile', updateData, {
-      headers: { 
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
+  });
+
+  if (favoriteData) {
+    try {
+      const token = localStorage.getItem('token');
+      const config = {
+        headers: { 'Authorization': `Bearer ${token}` }
+      };
+      
+      console.log(`Mise à jour du favori ${textile.id} avec:`, favoriteData);
+      
+     
+      const index = favorites.value.findIndex(fav => fav.id === textile.id);
+      if (index !== -1) {
+        favorites.value[index].frequency_of_use = favoriteData.frequency_of_use;
+        favorites.value[index].usage_context = favoriteData.usage_context;
+        favorites.value[index].personal_notes = favoriteData.personal_notes;
       }
-    });
-    
-    console.log('Réponse du serveur :', response.data);
-
-    if (response.data.success) {
-      // Mettre à jour les informations utilisateur
-      user.value = response.data.user || response.data;
       
-      // Réinitialiser le mode édition
-      isEditing.value = false;
-      currentPassword.value = ''; 
+      // Mettre à jour en base de données
+      const response = await api.put(`/users/favorites/${textile.id}/details`, favoriteData, config);
+      console.log('Réponse de mise à jour:', response.data);
       
-      // Notification de succès
-      await Swal.fire({
-        icon: 'success',
-        title: 'Profil mis à jour!',
-        text: 'Vos informations ont été modifiées avec succès',
-        timer: 1500,
-        showConfirmButton: false
+      // Si la mise à jour côté serveur a réussi, on rafraîchit la liste pour être sûr
+      if (response.data.success) {
+        // Rechargement des favoris pour s'assurer d'avoir les données à jour
+        await loadFavorites();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Détails mis à jour',
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 1500,
+          background: '#30343F',
+          color: '#FFD9DA'
+        });
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Mise à jour partielle',
+          text: 'Un problème est survenu lors de la mise à jour',
+          background: '#30343F',
+          color: '#FFD9DA'
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour des détails:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: error.response?.data?.message || 'Impossible de mettre à jour les détails',
+        background: '#30343F',
+        color: '#FFD9DA'
       });
-    } else {
-      // Gérer les cas où la réponse n'indique pas un succès
-      throw new Error(response.data.message || 'Mise à jour échouée');
     }
-  } catch (error) {
-    console.error('Erreur détaillée lors de la mise à jour:', error);
-    
-    // Afficher un message d'erreur spécifique
-    Swal.fire({
-      icon: 'error',
-      title: 'Erreur',
-      text: error.response?.data?.message || 'Impossible de mettre à jour le profil',
-      confirmButtonText: 'OK'
-    });
   }
 };
+
 // Confirmation de suppression de compte
 const confirmDelete = async () => {
   const result = await Swal.fire({
@@ -437,11 +606,6 @@ const confirmDelete = async () => {
 // Suppression du compte
 const deleteAccount = async () => {
   try {
-    const token = localStorage.getItem('token');
-    const config = {
-      headers: { 'Authorization': `Bearer ${token}` }
-    };
-    
     // Demander le mot de passe de confirmation
     const { value: password } = await Swal.fire({
       title: 'Confirmation de suppression',
@@ -457,7 +621,7 @@ const deleteAccount = async () => {
       cancelButtonText: 'Annuler',
       background: '#30343F',
       color: '#FFD9DA',
-              preConfirm: (password) => {
+      preConfirm: (password) => {
         if (!password) {
           Swal.showValidationMessage('Veuillez entrer votre mot de passe');
         }
@@ -500,18 +664,6 @@ const deleteAccount = async () => {
   }
 };
 
-// Basculer le mode édition
-const toggleEdit = () => {
-  isEditing.value = !isEditing.value;
-  
-  // Réinitialiser les valeurs lors de l'annulation
-  if (!isEditing.value) {
-    editedUser.value = { ...user.value };
-    currentPassword.value = '';
-    emailError.value = '';
-  }
-};
-
 // Afficher/Masquer le mot de passe
 const togglePassword = () => {
   showPassword.value = !showPassword.value;
@@ -540,86 +692,22 @@ const showErrorAlert = (message) => {
   announceToScreenReader(`Erreur : ${message}`);
 };
 
-// Ajouter aux favoris
-const addToFavorites = async (textileId) => {
-  try {
-    const token = localStorage.getItem('token');
-    const config = {
-      headers: { 'Authorization': `Bearer ${token}` }
-    };
-    
-    await api.post(`/favorites/${textileId}`, {}, config);
-    
-    // Feedback à l'utilisateur
-    Swal.fire({
-      icon: 'success',
-      title: 'Ajouté aux favoris',
-      timer: 1500,
-      showConfirmButton: false,
-      background: '#30343F',
-      color: '#FFD9DA'
-    });
-
-    // Recharger les favoris après ajout
-    await loadFavorites();
-  } catch (error) {
-    console.error('Erreur lors de l\'ajout aux favoris:', error);
-    handleApiError(error, 'Impossible d\'ajouter aux favoris');
-  }
-};
+// Surveillance des changements pour le débogage
+watch(favorites, (newVal) => {
+  console.log('Favoris mis à jour:', newVal);
+}, { deep: true });
 
 // Initialisation
 onMounted(async () => {
   await loadUserData();
   await loadFavorites();
+  
+  // Initialiser le formulaire d'édition
+  editedProfile.value = {
+    email: user.value.email || '',
+    newPassword: ''
+  };
 });
-
-// Exposer les méthodes nécessaires
-defineExpose({
-  addToFavorites,
-  removeFavorite
-});
-
-const handleFavorite = async (textileId) => {
-  try {
-    const token = localStorage.getItem('token');
-    const config = {
-      headers: { 'Authorization': `Bearer ${token}` }
-    };
-
-    // Vérifier si déjà favori
-    const isFavorite = favorites.value.some(f => f.id === textileId);
-
-    if (isFavorite) {
-      // Retirer des favoris
-      await api.delete(`/api/users/favorites/${textileId}`, config);
-    } else {
-      // Ajouter aux favoris
-      await api.post(`/api/users/favorites/${textileId}`, {}, config);
-    }
-
-    // Recharger les favoris
-    await loadFavorites();
-
-    Swal.fire({
-      icon: 'success',
-      title: isFavorite ? 'Retiré des favoris' : 'Ajouté aux favoris',
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 1500
-    });
-  } catch (error) {
-    console.error('Erreur lors de la gestion des favoris:', error);
-    
-    Swal.fire({
-      icon: 'error',
-      title: 'Erreur',
-      text: error.response?.data?.message || 'Impossible de gérer les favoris',
-      confirmButtonText: 'OK'
-    });
-  }
-};
 </script>
 
 <style scoped>
@@ -635,8 +723,6 @@ const handleFavorite = async (textileId) => {
   padding: 2rem;
   color: #FEFCFB;
   font-family: 'Arial', sans-serif;
-  max-width: 1200px;
-  margin: 0 auto;
 }
 
 /* Skip link pour l'accessibilité */
@@ -704,23 +790,11 @@ h3 {
 .profile-info {
   color: #FEFCFB;
   margin-bottom: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
 }
 
 /* Formulaires */
-.edit-form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
 .form-group {
   margin-bottom: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
 }
 
 label {
@@ -755,8 +829,6 @@ label {
 /* Gestion du mot de passe */
 .password-wrapper {
   position: relative;
-  display: flex;
-  align-items: center;
 }
 
 .toggle-password {
@@ -820,6 +892,11 @@ label {
   font-weight: bold;
 }
 
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
 .btn-primary {
   background-color: #89023E;
   color: #FEFCFB;
@@ -856,7 +933,6 @@ label {
 
 .btn-secondary:hover {
   background-color: #EA638C;
-  color: #FEFCFB;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
@@ -897,6 +973,14 @@ button:disabled {
 
 .textile-info {
   padding: 1rem;
+}
+
+.favorite-details {
+  margin: 1rem 0;
+  padding: 0.8rem;
+  background-color: rgba(137, 2, 62, 0.1);
+  border-radius: 4px;
+  font-size: 0.9rem;
 }
 
 /* Message pas de favoris */
@@ -995,3 +1079,6 @@ button:disabled {
   }
 }
 </style>
+  
+
+  

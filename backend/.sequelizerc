@@ -1,0 +1,9 @@
+// .sequelizerc (cela peut rester un fichier .js car il est traité différemment)
+const path = require('path');
+
+module.exports = {
+  'config': path.resolve('config', 'config.cjs'),  // Remarquez l'extension .cjs
+  'models-path': path.resolve('models'),
+  'seeders-path': path.resolve('seeders'),
+  'migrations-path': path.resolve('migrations')
+};

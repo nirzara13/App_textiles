@@ -1,3 +1,18 @@
+// import { defineConfig } from 'vite';
+// import vue from '@vitejs/plugin-vue';
+// import path from 'path';
+
+// export default defineConfig({
+//   plugins: [vue()],
+//   resolve: {
+//     alias: {
+//       '@': path.resolve(__dirname, './src'), // Ajoute cet alias
+//     },
+//   },
+// });
+
+
+
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import path from 'path';
@@ -6,7 +21,12 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'), // Ajoute cet alias
+      '@': path.resolve(__dirname, './frontend/src'),
     },
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./setup-tests.js']
+  }
 });

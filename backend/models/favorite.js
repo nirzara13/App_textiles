@@ -1,11 +1,9 @@
-// // models/favorite.js
+
+
+//CODE FONCTIONNEL
+
 // const Favorite = (sequelize, DataTypes) => {
 //   const Favorite = sequelize.define('Favorite', {
-//     id: {
-//       type: DataTypes.INTEGER,
-//       primaryKey: true,
-//       autoIncrement: true
-//     },
 //     user_id: {
 //       type: DataTypes.INTEGER,
 //       allowNull: false,
@@ -21,24 +19,22 @@
 //         model: 'textiles',
 //         key: 'id'
 //       }
-//     },
-//     created_at: {
-//       type: DataTypes.DATE,
-//       defaultValue: DataTypes.NOW
 //     }
 //   }, {
 //     tableName: 'favorites',
 //     timestamps: true,
 //     createdAt: 'created_at',
-//     updatedAt: false
+//     updatedAt: 'updated_at'
 //   });
 
 //   Favorite.associate = (models) => {
 //     Favorite.belongsTo(models.User, {
-//       foreignKey: 'user_id'
+//       foreignKey: 'user_id',
+//       as: 'user'
 //     });
 //     Favorite.belongsTo(models.Textile, {
-//       foreignKey: 'textile_id'
+//       foreignKey: 'textile_id',
+//       as: 'textile'
 //     });
 //   };
 
@@ -50,9 +46,12 @@
 
 
 
+
+
 // models/favorite.js
-// models/favorite.js
-export default (sequelize, DataTypes) => {
+
+// Pour les imports ESM (si vous utilisez ES modules)
+const Favorite = (sequelize, DataTypes) => {
   const Favorite = sequelize.define('Favorite', {
     id: {
       type: DataTypes.INTEGER,
@@ -75,32 +74,37 @@ export default (sequelize, DataTypes) => {
         key: 'id'
       }
     },
-    created_at: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-      field: 'created_at'
+    usage_context: {
+      type: DataTypes.ENUM('Professionnel', 'Loisir', 'Sport', 'Haute Couture'),
+      allowNull: true
     },
-    updated_at: {  // Ajout de cette colonne
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-      field: 'updated_at'
+    frequency_of_use: {
+      type: DataTypes.ENUM('Rarement', 'Occasionnellement', 'Régulièrement', 'Fréquemment'),
+      defaultValue: 'Occasionnellement'
+    },
+    personal_notes: {
+      type: DataTypes.TEXT,
+      allowNull: true
     }
   }, {
     tableName: 'favorites',
-    timestamps: false  // Gardez ceci à false car nous définissons manuellement les colonnes
+    timestamps: true,
+    underscored: true // Important pour que created_at et updated_at fonctionnent
   });
-
+  
   Favorite.associate = (models) => {
-    Favorite.belongsTo(models.User, {
+    Favorite.belongsTo(models.User, { 
       foreignKey: 'user_id',
-      as: 'user'
+      onDelete: 'CASCADE'
     });
     
-    Favorite.belongsTo(models.Textile, {
-      foreignKey: 'textile_id',
-      as: 'textile'
+    Favorite.belongsTo(models.Textile, { 
+      foreignKey: 'textile_id' 
     });
   };
-
+  
   return Favorite;
 };
+
+// Pour que ça fonctionne avec ES modules
+export default Favorite;

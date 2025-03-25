@@ -1,4 +1,8 @@
-// // models/index.js
+
+
+
+
+// models/index.js
 // import fs from 'fs';
 // import path from 'path';
 // import { Sequelize } from 'sequelize';
@@ -24,19 +28,26 @@
 //   }
 // );
 
-// const modelFiles = fs.readdirSync(__dirname)
-//   .filter(file => {
-//     return (file.indexOf('.') !== 0) && 
-//            (file !== 'index.js') && 
-//            (file.slice(-3) === '.js');
-//   });
+// // Chargement explicite des modèles
+// const modelFiles = [
+//   'user.js',
+//   'textile.js',
+//   'category.js',
+//   'favorite.js',
+//   'profile.js'  // Ajout du modèle profile.js
+// ];
 
-// // Chargement des modèles
+// // Charger et initialiser chaque modèle
 // for (const file of modelFiles) {
-//   const modelPath = `file://${path.join(__dirname, file)}`;
-//   const model = await import(modelPath);
-//   const initiatedModel = model.default(sequelize, Sequelize.DataTypes);
-//   db[initiatedModel.name] = initiatedModel;
+//   try {
+//     const modelPath = path.join(__dirname, file);
+//     const modelModule = await import(`file://${modelPath}`);
+//     const initiatedModel = modelModule.default(sequelize, Sequelize.DataTypes);
+    
+//     db[initiatedModel.name] = initiatedModel;
+//   } catch (error) {
+//     console.error(`Erreur lors du chargement du modèle ${file}:`, error);
+//   }
 // }
 
 // // Associations
@@ -50,6 +61,7 @@
 // db.Sequelize = Sequelize;
 
 // export default db;
+
 
 
 
@@ -82,9 +94,10 @@ const sequelize = new Sequelize(
 // Chargement explicite des modèles
 const modelFiles = [
   'user.js',
-  'textile.js', 
-  'category.js', 
-  'favorite.js'
+  'textile.js',
+  'category.js',
+  'favorite.js', // Ajoutez cette ligne
+  'tissu.js'  // Ajoutez cette ligne
 ];
 
 // Charger et initialiser chaque modèle
@@ -109,6 +122,5 @@ Object.keys(db).forEach(modelName => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
-
 
 export default db;

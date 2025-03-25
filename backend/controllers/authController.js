@@ -61,21 +61,24 @@ class AuthController {
     }
   }
 
+  
+
   // Connexion
+
   async login(req, res) {
     try {
       const { email, password } = req.body;
-
-      // Vérifier si l'utilisateur existe
       const user = await User.findOne({ where: { email } });
+      
+      // Vérifier si l'utilisateur existe
       if (!user) {
         return res.status(401).json({
           success: false,
           message: 'Email ou mot de passe incorrect'
         });
       }
-
-      // Vérifier le mot de passe
+  
+      // Vérification du mot de passe
       const isValidPassword = await bcrypt.compare(password, user.password);
       if (!isValidPassword) {
         return res.status(401).json({
@@ -83,21 +86,26 @@ class AuthController {
           message: 'Email ou mot de passe incorrect'
         });
       }
-
-      // Générer le token JWT
+  
+      // Générer le token AVEC le rôle
       const token = jwt.sign(
-        { userId: user.id, email: user.email },
+        { 
+          userId: user.id, 
+          email: user.email,
+          role: user.role  // Inclure le rôle ici
+        },
         process.env.JWT_SECRET,
         { expiresIn: TOKEN_DURATION }
       );
-
+  
       res.json({
         success: true,
         message: 'Connexion réussie',
         token,
         user: {
           id: user.id,
-          email: user.email
+          email: user.email,
+          role: user.role  // Renvoyer le rôle
         }
       });
     } catch (error) {
@@ -108,6 +116,7 @@ class AuthController {
       });
     }
   }
+
 
   // Récupérer le profil de l'utilisateur
   async getProfile(req, res) {
@@ -285,6 +294,8 @@ class AuthController {
     }
   }
 
+  
+
   // Supprimer le compte
   async deleteAccount(req, res) {
     try {
@@ -312,6 +323,111 @@ class AuthController {
       });
     }
   }
+
+  async updateFavoriteDetails(req, res) {
+    try {
+      const userId = req.userId;
+      const textileId = req.params.textileId;
+      const { usage_context, frequency_of_use, personal_notes } = req.body;
+      
+      // Trouver le favori correspondant
+      const favorite = await models.Favorite.findOne({
+        where: {
+          user_id: userId,
+          textile_id: textileId
+        }
+      });
+      
+      if (!favorite) {
+        return res.status(404).json({
+          success: false,
+          message: 'Favori non trouvé'
+        });
+      }
+      
+      // Mettre à jour les détails
+      await favorite.update({
+        usage_context,
+        frequency_of_use,
+        personal_notes,
+        updated_at: new Date()
+      });
+      
+      res.json({
+        success: true,
+        message: 'Détails du favori mis à jour avec succès',
+        favorite
+      });
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour des détails du favori:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Erreur lors de la mise à jour des détails'
+      });
+    }
+  }
+
+
+  // Dans le même fichier authController.js
+async createFirstAdmin(req, res) {
+  try {
+    // Vérifier si un admin existe déjà
+    const existingAdmin = await User.findOne({ 
+      where: { role: 'admin' } 
+    });
+
+    if (existingAdmin) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Un admin existe déjà' 
+      });
+    }
+
+    // Créer le premier admin
+    const user = await User.create({
+      email: 'admin@votre-site.com',
+      password: 'AdminTempPass2024!',
+      role: 'admin'
+    });
+
+    // Générer le token JWT
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: TOKEN_DURATION }
+    );
+
+    res.status(201).json({ 
+      success: true,
+      message: 'Premier compte admin créé',
+      token,
+      user: {
+        id: user.id,
+        email: user.email
+      }
+    });
+  } catch (error) {
+    console.error('Erreur lors de la création du compte admin:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erreur lors de la création du compte admin',
+      error: error.message 
+    });
+  }
 }
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
 
 export default new AuthController();

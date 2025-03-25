@@ -83,7 +83,10 @@ import Signup from '@/views/Signup.vue'
 import Contact from '@/views/Contact.vue'
 import Dashboard from '@/views/Dashboard.vue'
  // Dans votre router/index.js
- import AuthTest from '@/views/AuthTest.vue'
+ 
+ import TextileDetailView from '@/views/TextileDetailView.vue'
+ 
+import { useAuthStore } from '@/stores/auth'; // Ajoutez aussi cet import
 
 
 const routes = [
@@ -112,12 +115,22 @@ const routes = [
     name: 'Dashboard',
     component: Dashboard,
     meta: { requiresAuth: true }
+  },
+
+{
+  path: '/',
+  name: 'Home',
+  component: Home
+},
+
+
+  {
+    path: '/details/:slug',
+    name: 'textileDetails',
+    component: () => import('../views/TextileDetailView.vue'),
+    // Pas besoin de meta.requiresAuth car accessible à tous
   }
-  ,{
-  path: '/auth-test',
-  name: 'AuthTest',
-  component: AuthTest
-}
+  
 
 ]
 
@@ -126,14 +139,26 @@ const router = createRouter({
   routes
 })
 
-// Navigation guard pour protéger les routes authentifiées
+// // Navigation guard pour protéger les routes authentifiées
+// router.beforeEach((to, from, next) => {
+//   const token = localStorage.getItem('token')
+//   if (to.meta.requiresAuth && !token) {
+//     next('/login')
+//   } else {
+//     next()
+//   }
+// })
+
+
+
 router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token')
-  if (to.meta.requiresAuth && !token) {
-    next('/login')
+  const authStore = useAuthStore();
+  
+  if (to.meta.requiresAdmin && authStore.userRole !== 'admin') {
+    next('/login');
   } else {
-    next()
+    next();
   }
-})
+});
 
 export default router

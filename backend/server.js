@@ -13,6 +13,21 @@ import databaseConfig from './config/database.js';
 import profileRoutes from './routes/profileRoutes.js';
 import favoriteRoutes from './routes/favoriteRoutes.js';
 dotenv.config();
+import profileDetailRoutes from './routes/profileDetailRoutes.js';
+import textileRoutes from './routes/textileRoutes.js';
+
+import tissuRoutes from './routes/tissuRoutes.js';
+import compositionRoutes from './routes/compositionRoutes.js';
+
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import contactRoutes from './routes/contactRoutes.js';
+import crypto from 'crypto';
+
+
+
+
+
 
 // Configuration du logger
 const logger = winston.createLogger({
@@ -52,6 +67,9 @@ app.use(rateLimit({
 app.use(bodyParser.json());
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 
+// Ajouter après les autres middlewares (après app.use(cors(corsOptions)))
+app.use(cookieParser());
+
 // Utilise la configuration de la base de données depuis database.js
 const env = process.env.NODE_ENV || 'development';
 const dbConfig = databaseConfig[env];
@@ -67,11 +85,34 @@ const sequelize = new Sequelize(
   }
 );
 
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
+  resave: true,
+  saveUninitialized: true,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 30 * 60 * 60 * 1000 // 30 minutes
+  }
+}));
+
 // Routes API
 app.use('/api/users', userRoutes);
+
 app.use('/api/profile', profileRoutes);
 app.use('/api/favorites', favoriteRoutes);
+app.use('/api/tissus', tissuRoutes);
+app.use('/api/compositions', compositionRoutes);
+app.use('/api', contactRoutes);
 
+
+// Configuration des routes
+app.use('/api/profile', profileRoutes);
+app.use('/api/user-profile', profileRoutes); // Ajoutez cette ligne comme alias
+app.use('/api/profile-details', profileDetailRoutes);
+app.use('/api/users/favorites', favoriteRoutes);
+app.use('/api/textiles', textileRoutes);
 
 
 // Après vos autres configurations

@@ -1,6 +1,6 @@
 <template>
   <div id="home" class="home-container">
-    <!-- Carrousel -->
+    
     <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
       <div class="carousel-inner">
         <div class="carousel-item active">
@@ -11,14 +11,14 @@
           </div>
         </div>
         <div class="carousel-item">
-          <img src="@/assets/colorful-sewing-threads-background-closeup.jpg" class="d-block w-100" alt="Fils à coudre colorés en gros plan">
+          <img src="@/assets/image_diapo2.jpg" class="d-block w-100" alt="Fils à coudre colorés en gros plan">
           <div class="carousel-caption d-none d-md-block">
             <h1 class="display-4 carousel-title">Nos Produits</h1>
             <p class="lead carousel-text">Des produits de qualité pour tous vos besoins.</p>
           </div>
         </div>
         <div class="carousel-item">
-          <img src="@/assets/colorful-sewing-threads-background-closeup.jpg" class="d-block w-100" alt="Fils à coudre colorés en gros plan">
+          <img src="@/assets/image_diapo3.jpg" class="d-block w-100" alt="Fils à coudre colorés en gros plan">
           <div class="carousel-caption d-none d-md-block">
             <h1 class="display-4 carousel-title">Contactez-nous</h1>
             <p class="lead carousel-text">Nous sommes là pour vous aider.</p>
@@ -35,23 +35,7 @@
       </button>
     </div>
 
-    <!-- Système de Débogage (à enlever en production) -->
-    <div v-if="isDebugMode" class="debug-panel">
-      <h5>Informations de débogage</h5>
-      <p>Authentifié: {{ authStore.isUserAuthenticated }}</p>
-      <p>Token présent: {{ !!localStorage.getItem('token') }}</p>
-      <p>Favoris chargés: {{ favorites.length }}</p>
-      <p>Favoris IDs: {{ favorites.join(', ') }}</p>
-      <div class="debug-buttons">
-        <button @click="loadFavorites" class="btn btn-sm btn-info">Recharger Favoris</button>
-        <button @click="isDebugMode = false" class="btn btn-sm btn-secondary">Cacher Débogage</button>
-      </div>
-    </div>
-    <div v-else class="text-center mt-2 mb-2">
-      <button @click="isDebugMode = true" class="btn btn-sm btn-light">Afficher Débogage</button>
-    </div>
-
-    <!-- Section Fibres Synthétiques -->
+    
     <div class="section">
       <h2 class="section-title">Fibres Synthétiques</h2>
       <p class="section-description">Découvrez les matières synthétiques, pratiques et résistantes.</p>
@@ -61,6 +45,7 @@
           :key="category.id" 
           class="category-card" 
           @click="goToDetail(category.id)"
+          tabindex="0"
         >
           <img 
             :src="category.image" 
@@ -93,6 +78,7 @@
           :key="category.id" 
           class="category-card" 
           @click="goToDetail(category.id)"
+          tabindex="0"
         >
           <img 
             :src="category.image" 
@@ -125,6 +111,7 @@
           :key="category.id" 
           class="category-card" 
           @click="goToDetail(category.id)"
+          tabindex="0"
         >
           <img 
             :src="category.image" 
@@ -146,6 +133,18 @@
         </div>
       </div>
     </div>
+
+
+ 
+
+    <!-- Section Admin (seulement visible pour les administrateurs) -->
+    <div v-if="isAdmin" class="section admin-section">
+      <h2 class="section-title">Panneau d'Administration</h2>
+      <div class="admin-actions">
+        <router-link to="/admin/textiles" class="admin-link">Gérer les Textiles</router-link>
+        <router-link to="/admin/users" class="admin-link">Gérer les Utilisateurs</router-link>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -159,50 +158,65 @@ import Swal from 'sweetalert2';
 const router = useRouter();
 const authStore = useAuthStore();
 const favorites = ref([]);
-const isDebugMode = ref(false);
+const selectedTextile = ref(null);
 
-// Catégories de fibres (restent identiques)
+// Catégories de fibres
 const syntheticCategories = [
   {
-    id: 1, // ID numérique au lieu de 'polyester'
+    id: 1, 
     name: 'Polyester',
-    image: '/src/assets/colorful-sewing-threads-background-closeup.jpg'
+    image: '/src/assets/polyester.jpg'
   },
   {
-    id: 2, // ID numérique au lieu de 'nylon'
+    id: 2,
     name: 'Nylon',
-    image: '/src/assets/colorful-sewing-threads-background-closeup.jpg'
+    image: '/src/assets/nylon.jpg'
   }
 ];
 
 const animalCategories = [
   {
-    id: 3, // ID numérique au lieu de 'laine'
+    id: 3,
     name: 'Laine',
-    image: '/src/assets/colorful-sewing-threads-background-closeup.jpg'
+    image: '/src/assets/laine.jpg'
   },
   {
-    id: 4, // ID numérique au lieu de 'soie'
+    id: 4,
     name: 'Soie',
-    image: '/src/assets/colorful-sewing-threads-background-closeup.jpg'
+    image: '/src/assets/La_soie.jpg'
   }
 ];
 
 const technicalCategories = [
   {
-    id: 5, // ID numérique au lieu de 'kevlar'
+    id: 5,
     name: 'Kevlar',
-    image: '/src/assets/colorful-sewing-threads-background-closeup.jpg'
+    image: '/src/assets/kevlar.jpg'
   },
   {
-    id: 6, // ID numérique au lieu de 'gore_tex'
+    id: 6,
     name: 'Gore-Tex',
-    image: '/src/assets/colorful-sewing-threads-background-closeup.jpg'
+    image: '/src/assets/gore-tex.jpg'
   }
 ];
-const goToDetail = (category) => {
-  // Si vous utilisez des IDs numériques dans votre base de données
-  const textileMap = {
+
+const isAdmin = computed(() => {
+  return authStore.isUserAuthenticated && authStore.userRole === 'admin';
+});
+
+const loadTextileDetails = async (textileId) => {
+  try {
+    const response = await api.get(`/textiles/${textileId}`);
+    selectedTextile.value = response.data;
+  } catch (error) {
+    console.error('Erreur lors du chargement des détails du textile:', error);
+    selectedTextile.value = null;
+  }
+};
+
+const goToDetail = (categoryId) => {
+  // Mapping des IDs numériques vers les slugs pour l'URL
+  const categoryMap = {
     1: 'polyester',
     2: 'nylon',
     3: 'laine',
@@ -211,14 +225,15 @@ const goToDetail = (category) => {
     6: 'gore_tex'
   };
   
-  router.push(`/details/${textileMap[category]}`);
+  router.push(`/details/${categoryMap[categoryId]}`);
 };
 
+
+// Fonction handleFavorite mise à jour pour assurer des valeurs valides
+
 const handleFavorite = async (event, textileId) => {
-  // Empêcher la propagation de l'événement
   event.stopPropagation();
 
-  // Vérifier l'authentification
   if (!authStore.isUserAuthenticated) {
     const result = await Swal.fire({
       title: 'Connexion requise',
@@ -247,29 +262,119 @@ const handleFavorite = async (event, textileId) => {
       headers: { 'Authorization': `Bearer ${token}` }
     };
 
-    // Vérifier si déjà favori
     const isFavorite = isInFavorites(textileId);
 
     if (isFavorite) {
-      // Retirer des favoris
+      // Supprimer des favoris
       await api.delete(`/users/favorites/${textileId}`, config);
       favorites.value = favorites.value.filter(id => id !== textileId);
+      
+      // Notification de suppression
+      Swal.fire({
+        icon: 'success',
+        title: 'Retiré des favoris',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        background: '#30343F',
+        color: '#FFD9DA'
+      });
     } else {
-      // Ajouter aux favoris
-      await api.post(`/users/favorites/${textileId}`, {}, config);
-      favorites.value.push(textileId);
-    }
+      // Ajouter aux favoris avec détails
+      const { value: favoriteData } = await Swal.fire({
+        title: 'Ajouter aux favoris',
+        html: `
+          <div class="favorite-form">
+            <div class="form-group">
+              <label for="frequency">Fréquence d'utilisation</label>
+              <select id="frequency" class="swal2-input">
+                <option value="Fréquemment">Fréquemment</option>
+                <option value="Régulièrement">Régulièrement</option>
+                <option value="Occasionnellement" selected>Occasionnellement</option>
+                <option value="Rarement">Rarement</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="usage">Contexte d'utilisation</label>
+              <input id="usage" class="swal2-input" placeholder="Ex: Vêtements, Ameublement..." aria-label="Contexte d'utilisation">
+            </div>
+            <div class="form-group">
+              <label for="notes">Notes personnelles</label>
+              <textarea id="notes" class="swal2-textarea" placeholder="Vos notes sur ce textile..." aria-label="Notes personnelles"></textarea>
+            </div>
+          </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Ajouter',
+        cancelButtonText: 'Annuler',
+        background: '#30343F',
+        color: '#FFD9DA',
+        preConfirm: () => {
+          const frequencyVal = document.getElementById('frequency').value;
+          const usageVal = document.getElementById('usage').value;
+          const notesVal = document.getElementById('notes').value;
+          
+          // Validation côté client - s'assurer que la fréquence est une valeur autorisée
+          const validFrequencies = ['Fréquemment', 'Régulièrement', 'Occasionnellement', 'Rarement'];
+          
+          if (!validFrequencies.includes(frequencyVal)) {
+            Swal.showValidationMessage('Veuillez sélectionner une fréquence d\'utilisation valide');
+            return false;
+          }
+          
+          return {
+            frequency_of_use: frequencyVal,
+            usage_context: usageVal || null,
+            personal_notes: notesVal || null
+          };
+        }
+      });
 
-    Swal.fire({
-      icon: 'success',
-      title: isFavorite ? 'Retiré des favoris' : 'Ajouté aux favoris',
-      toast: true,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 1500,
-      background: '#30343F',
-      color: '#FFD9DA'
-    });
+      // Vérifier si l'utilisateur a cliqué sur Ajouter et non sur Annuler
+      if (favoriteData) {
+        console.log('Données du favori à envoyer:', favoriteData);
+        
+        // Vérifier une dernière fois que la fréquence est valide
+        const validFrequencies = ['Fréquemment', 'Régulièrement', 'Occasionnellement', 'Rarement'];
+        if (!validFrequencies.includes(favoriteData.frequency_of_use)) {
+          favoriteData.frequency_of_use = 'Occasionnellement';
+        }
+        
+        try {
+          // Envoyer la requête d'ajout de favori
+          const response = await api.post(`/users/favorites/${textileId}`, favoriteData, config);
+          
+          if (response.data && response.data.success) {
+            favorites.value.push(textileId);
+            
+            // Notification d'ajout
+            Swal.fire({
+              icon: 'success',
+              title: 'Ajouté aux favoris',
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 1500,
+              background: '#30343F',
+              color: '#FFD9DA'
+            });
+          } else {
+            throw new Error('Erreur lors de l\'ajout du favori');
+          }
+        } catch (apiError) {
+          console.error('Erreur API lors de l\'ajout du favori:', apiError);
+          Swal.fire({
+            icon: 'error',
+            title: 'Erreur',
+            text: 'Une erreur est survenue lors de l\'ajout aux favoris',
+            background: '#30343F',
+            color: '#FFD9DA'
+          });
+        }
+      }
+    }
   } catch (error) {
     console.error('Erreur lors de la gestion des favoris:', error);
     
@@ -284,8 +389,6 @@ const handleFavorite = async (event, textileId) => {
   }
 };
 
-
-// Dans Home.vue, assurez-vous que loadFavorites est définie avant onMounted
 const loadFavorites = async () => {
   try {
     if (!authStore.isUserAuthenticated) {
@@ -299,7 +402,7 @@ const loadFavorites = async () => {
     };
     
     const response = await api.get('/users/favorites', config);
-    console.log('Réponse favoris:', response.data);
+    console.log('Réponse brute des favoris:', response.data);
     
     if (response.data && Array.isArray(response.data.favorites)) {
       favorites.value = response.data.favorites.map(fav => fav.id);
@@ -308,17 +411,13 @@ const loadFavorites = async () => {
     } else {
       favorites.value = [];
     }
+    
+    console.log('Favoris chargés:', favorites.value);
   } catch (error) {
-    console.error('Erreur lors du chargement des favoris:', error);
-    favorites.value = []; // Initialiser à vide en cas d'erreur
+    console.error('Erreur détaillée lors du chargement des favoris:', error);
+    favorites.value = [];
   }
 };
-
-// Ensuite seulement, utilisez onMounted
-onMounted(async () => {
-  console.log('Home component mounted, auth state:', authStore.isUserAuthenticated);
-  await loadFavorites();
-});
 
 const isInFavorites = (textileId) => {
   return favorites.value.includes(textileId);
@@ -330,7 +429,6 @@ const getFavoriteAriaLabel = (textileId) => {
     : `Ajouter ${textileId} aux favoris`;
 };
 
-// Chargement des favoris au montage du composant
 onMounted(async () => {
   console.log('Home component mounted, auth state:', authStore.isUserAuthenticated);
   await loadFavorites();
@@ -338,212 +436,209 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Grille de cartes */
-.category-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 cartes par ligne pour un meilleur affichage */
-  gap: 30px;
-  padding: 20px;
-  justify-content: center; /* Centrer les cartes horizontalement */
+/* Style de base */
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Arial', sans-serif;
 }
 
-/* Section */
-.section {
-  margin: 40px 0;
-  text-align: center; /* Centre les titres de section */
-}
-
-/* Titre de section */
-.section-title {
-  font-family: 'Shrikhand', sans-serif;
-  font-size: 2rem;
-  color: #1B2021;
-  margin-bottom: 10px;
-}
-
-/* Description de section */
-.section-description {
-  font-size: 1.2rem;
-  color: #30343F;
-  margin-bottom: 20px;
-}
-
-/* Carte */
-.category-card {
-  background-color: #fff;
+/* Carrousel */
+.carousel {
+  margin-bottom: 3rem;
   border-radius: 10px;
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  text-align: center;
-  position: relative;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.category-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* Image de la carte */
-.category-card-img {
-  width: 100%;
-  height: 250px;
+.carousel-item img {
+  height: 400px;
   object-fit: cover;
 }
 
-/* Corps de la carte */
-.category-card-body {
-  padding: 15px;
-}
-
-/* Titre de la carte */
-.category-card-title {
-  font-family: 'Shrikhand', sans-serif;
-  font-size: 1.5rem;
-  color: #1B2021;
-  margin: 10px 0;
-}
-
-/* Bouton Favori */
-.favorite-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: #89023E;
-  cursor: pointer;
-  padding: 10px;
-}
-
-.favorite-btn:hover {
-  color: #ea638c;
-}
-
-/* Applique la police Shrikhand sur le texte du carrousel */
-.carousel-title, .carousel-text {
-  font-family: 'Shrikhand', sans-serif;
-}
-
-/* Style du carrousel (si tu veux personnaliser davantage) */
 .carousel-caption {
-  color: #ffffff; /* Assure que le texte reste bien visible */
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); /* Améliore la lisibilité sur fond clair ou sombre */
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  padding: 1rem;
 }
 
 .carousel-title {
-  font-size: 3rem;
+  font-weight: bold;
   color: #FFD9DA;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .carousel-text {
-  font-size: 1.25rem;
   color: #FEFCFB;
 }
 
-.category-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 30px;
-  padding: 20px;
-  justify-content: center;
-}
-
+/* Sections */
 .section {
-  margin: 40px 0;
-  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background-color: #30343F;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  color: #FEFCFB;
 }
 
 .section-title {
-  font-family: 'Shrikhand', sans-serif;
+  color: #FFD9DA;
+  margin-bottom: 1rem;
   font-size: 2rem;
-  color: #1B2021;
-  margin-bottom: 10px;
+  text-align: center;
 }
 
 .section-description {
+  text-align: center;
+  margin-bottom: 2rem;
   font-size: 1.2rem;
-  color: #30343F;
-  margin-bottom: 20px;
+}
+
+/* Grille de catégories */
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
 }
 
 .category-card {
-  background-color: #fff;
+  background-color: #1B2021;
   border-radius: 10px;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  text-align: center;
   position: relative;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .category-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
 }
 
 .category-card-img {
   width: 100%;
-  height: 250px;
+  height: 180px;
   object-fit: cover;
 }
 
 .category-card-body {
-  padding: 15px;
-}
-
-.category-card-title {
-  font-family: 'Shrikhand', sans-serif;
-  font-size: 1.5rem;
-  color: #1B2021;
-  margin: 10px 0;
-}
-
-.favorite-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: #89023E;
-  cursor: pointer;
-  padding: 10px;
-}
-
-.favorite-btn:hover {
-  color: #ea638c;
-}
-
-.carousel-title, .carousel-text {
-  font-family: 'Shrikhand', sans-serif;
-}
-
-.carousel-caption {
-  color: #ffffff;
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-}
-
-.carousel-title {
-  font-size: 3rem;
-  color: #FFD9DA;
-}
-
-.carousel-text {
-  font-size: 1.25rem;
-  color: #FEFCFB;
-}
-
-/* Ajout des styles pour le débogage */
-.debug-panel {
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  padding: 10px;
-  margin: 10px 0;
-  font-size: 0.8rem;
-}
-
-.debug-buttons {
-  margin-top: 10px;
+  padding: 1rem;
   display: flex;
-  gap: 5px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.category-card-title {
+  margin: 0;
+  color: #FFD9DA;
+  font-size: 1.2rem;
+}
+
+.favorite-btn {
+  background: none;
+  border: none;
+  color: #EA638C;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.favorite-btn:hover {
+  color: #89023E;
+  transform: scale(1.2);
+}
+
+.favorite-btn i.fa-heart {
+  color: #89023E;
+}
+
+/* Styles pour le formulaire dans SweetAlert */
+:global(.favorite-form) {
+  text-align: left;
+  margin-top: 1rem;
+}
+
+:global(.favorite-form .form-group) {
+  margin-bottom: 1rem;
+}
+
+:global(.favorite-form label) {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .home-container {
+    padding: 1rem;
+  }
+  
+  .carousel-item img {
+    height: 300px;
+  }
+  
+  .section {
+    padding: 1.5rem;
+  }
+  
+  .category-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .carousel-item img {
+    height: 200px;
+  }
+  
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Accessibilité */
+@media (prefers-reduced-motion: reduce) {
+  .category-card:hover {
+    transform: none;
+  }
+  
+  .favorite-btn:hover {
+    transform: none;
+  }
+}
+
+.textile-image {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.textile-details {
+  margin-bottom: 1rem;
+}
+
+.textile-characteristics {
+  background-color: #1B2021;
+  padding: 1rem;
+  border-radius: 5px;
+}
+
+.textile-characteristics h4 {
+  color: #FFD9DA;
+  margin-bottom: 0.5rem;
+}
+
+.textile-characteristics ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.textile-popup {
+  max-width: 600px;
 }
 </style>

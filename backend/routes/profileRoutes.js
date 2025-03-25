@@ -203,12 +203,13 @@ router.get('/', async (req, res) => {
 });
 
 // Mettre à jour le profil
+// Mettre à jour le profil
 router.put('/', async (req, res) => {
   console.log('PUT /api/profile - userId:', req.userId);
   console.log('Données reçues:', req.body);
   
   try {
-    const { email, password } = req.body;
+    const { email, password, newPassword } = req.body;
     const user = await User.findByPk(req.userId);
     
     if (!user) {
@@ -221,9 +222,10 @@ router.put('/', async (req, res) => {
     // Mettre à jour les données
     if (email) user.email = email;
     
-    if (password) {
+    // Si un nouveau mot de passe est fourni, le mettre à jour
+    if (newPassword) {
       const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
+      user.password = await bcrypt.hash(newPassword, salt);
     }
     
     await user.save();
@@ -245,7 +247,7 @@ router.put('/', async (req, res) => {
     });
   }
 });
-
+  
 // Supprimer le compte
 router.delete('/', async (req, res) => {
   console.log('DELETE /api/profile - userId:', req.userId);
