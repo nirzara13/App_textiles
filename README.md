@@ -75,13 +75,13 @@ cd mon-app-textiles
 
 ## Configuer le fichier d'environnement .env 
 
-#### Démarrez l'application
+## Démarrez l'application
 Exécuter la commande suivante à la racine du projet : npm run dev 
 
 Ouvrir un nouveau terminal dans VS Code, se placer dans le dossier backend et exécuter : node server.js
 
 
-#### Dépendances du projet
+# Dépendances du projet
 Interface utilisateur (Frontend)
 
 # Framework Vue.js et gestion de routes
@@ -91,7 +91,7 @@ npm install vue@3.5.13 vue-router@4.5.0 pinia@2.3.1
 npm install bootstrap@5.3.3 @popperjs/core@2.11.8 sweetalert2@11.17.2
 npm install @fortawesome/fontawesome-free@6.7.2 font-awesome@4.7.0
 
-#### Serveur et API (Backend)
+# Serveur et API (Backend)
 # Serveur Express et middlewares
 npm install express@4.21.2 cors@2.8.5 body-parser@1.20.3 
 npm install helmet@8.0.0 morgan@1.10.0 express-validator@7.2.1
@@ -118,14 +118,14 @@ npm install --save-dev @testing-library/jest-dom@6.6.3 @vue/test-utils@2.4.0-alp
 npm install --save-dev @vue/vue3-jest@29.2.6 babel-jest@26.6.3 @babel/preset-env@7.26.9
 
 
-#### Architecture technique
+# Architecture technique
 L'application est construite selon le modèle MVC (Modèle-Vue-Contrôleur):
 
 - Vue (Frontend): Vue.js 3 gère l'interface utilisateur avec une approche par composants
 - Contrôleur (Backend): Express.js traite les requêtes et coordonne les opérations
 - Modèle (Base de données): Sequelize ORM interagit avec MySQL/PostgreSQL
 
-#### Mesures de sécurité
+# Mesures de sécurité
 
 Stockage sécurisé des mots de passe avec hachage bcrypt
 Protection contre les injections SQL grâce à l'ORM Sequelize
