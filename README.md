@@ -5,8 +5,6 @@ This template should help get you started developing with Vue 3 in Vite. The tem
 Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
 
 
-# Documentation des Tests
-
 # Application de Gestion de Textiles
 
 Une application web permettant de gérer et explorer différentes matières textiles, avec système d'authentification et gestion de favoris.
@@ -27,20 +25,10 @@ Une application web permettant de gérer et explorer différentes matières text
 - **ORM**: Sequelize
 - **Sécurité**: bcrypt, JWT
 
-## Structure de la base de données
-
-L'application utilise une base de données MySQL avec les tables suivantes:
-- `users`: stocke les informations des utilisateurs
-- `textiles`: contient les matières textiles
-- `categories`: catégories de matières textiles
-- `favorites`: association many-to-many entre utilisateurs et textiles
-
-## Installation et démarrage
 
 ### Prérequis
 
 - Node.js
 - MySQL
 
-### Installation
 
