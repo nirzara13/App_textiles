@@ -171,7 +171,8 @@ const textileSlugMap = {
   'laine': 3,
   'soie': 4,
   'kevlar': 5,
-  'gore-tex': 6
+  'gore-tex': 6,
+  'gore_tex': 6 
 };
 
 // Conversion du slug en ID de textile
