@@ -1,79 +1,152 @@
 <template>
-  <div class="privacy-page">
-    <h1>Politique de Confidentialité</h1>
-    <p>Cette politique de confidentialité s’applique au site : <strong>www.monsite.com</strong>.</p>
+  <div class="politique-confidentialite-container" role="main" aria-labelledby="page-title">
+    <h1 id="page-title" class="page-title">Politique de Confidentialité</h1>
     
-    <h2>1. Collecte des informations :</h2>
-    <p>Nous recueillons des informations lorsque vous vous inscrivez sur notre site, lorsque vous vous connectez à votre compte, faites un achat, participez à un concours, et/ou lorsque vous vous déconnectez.</p>
-    
-    <h2>2. Utilisation des informations :</h2>
-    <p>Toutes les informations que nous recueillons auprès de vous peuvent être utilisées pour :</p>
-    <ul>
-      <li>Personnaliser votre expérience et répondre à vos besoins individuels</li>
-      <li>Fournir un contenu publicitaire personnalisé</li>
-      <li>Améliorer notre site</li>
-      <li>Améliorer le service client et vos besoins de prise en charge</li>
-      <li>Vous contacter par e-mail</li>
-      <li>Administrer un concours, une promotion, ou une enquête</li>
-    </ul>
-    
-    <h2>3. Confidentialité des informations :</h2>
-    <p>Nous sommes les seuls propriétaires des informations recueillies sur ce site.</p>
+    <section class="section" aria-labelledby="introduction-title">
+      <h2 id="introduction-title">Introduction</h2>
+      <div class="content-block">
+        <p>Nous nous engageons à protéger la vie privée des utilisateurs de notre application. Cette politique de confidentialité décrit comment nous collectons, utilisons et protégeons les informations personnelles.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="donnees-title">
+      <h2 id="donnees-title">Données Collectées</h2>
+      <div class="content-block">
+        <p>Nous collectons les données suivantes :</p>
+        <ul>
+          <li>Adresse email (lors de l'inscription)</li>
+          <li>Mot de passe (stocké sous forme hashée avec bcrypt)</li>
+          <li>Informations liées aux favoris :
+            <ul>
+              <li>Fréquence d'utilisation</li>
+              <li>Contexte</li>
+              <li>Notes personnelles</li>
+            </ul>
+          </li>
+          <li>Données de connexion (adresse IP, navigateur utilisé)</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="utilisation-title">
+      <h2 id="utilisation-title">Utilisation des Données</h2>
+      <div class="content-block">
+        <p>Les données collectées sont utilisées uniquement pour :</p>
+        <ul>
+          <li>Créer un compte et permettre la connexion</li>
+          <li>Gérer le profil et les favoris des utilisateurs</li>
+          <li>Stocker les informations personnelles liées aux textiles favoris</li>
+          <li>Améliorer l'expérience utilisateur</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="stockage-title">
+      <h2 id="stockage-title">Stockage des Données</h2>
+      <div class="content-block">
+        <p>Les données sont stockées localement dans une base MySQL via Laragon. Aucune donnée n'est partagée avec des tiers sans consentement explicite.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="securite-title">
+      <h2 id="securite-title">Sécurité des Données</h2>
+      <div class="content-block">
+        <p>Nous prenons des mesures raisonnables pour protéger les données contre :</p>
+        <ul>
+          <li>Perte</li>
+          <li>Utilisation abusive</li>
+          <li>Accès non autorisé</li>
+          <li>Divulgation</li>
+          <li>Altération</li>
+          <li>Destruction</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="droits-title">
+      <h2 id="droits-title">Droits des Utilisateurs</h2>
+      <div class="content-block">
+        <p>Conformément au Règlement Général sur la Protection des Données (RGPD), chaque utilisateur dispose des droits suivants :</p>
+        <ul>
+          <li>Accéder à ses données personnelles</li>
+          <li>Modifier ou supprimer ses données via son tableau de bord</li>
+          <li>Supprimer son compte et toutes ses données associées</li>
+          <li>S'opposer au traitement de ses données pour des raisons légitimes</li>
+        </ul>
+        <p>Pour toute demande liée aux données personnelles, contactez-nous à l'adresse : protection-donnees@unfilestyle.com</p>
+      </div>
+    </section>
   </div>
 </template>
 
-<script setup>
+<script>
+export default {
+  name: 'PolitiqueConfidentialite',
+  metaInfo: {
+    title: 'Politique de Confidentialité - Un file & un style',
+    meta: [
+      { 
+        name: 'description', 
+        content: 'Politique de protection des données personnelles de l\'application Un file & un style' 
+      }
+    ]
+  }
+}
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400&family=Shrikhand&display=swap');
-
-.privacy-page {
+.politique-confidentialite-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
   background-color: #FEFCFB;
   color: #1B2021;
-  font-family: 'Open Sans', sans-serif;
-  font-weight: 300; /* Poids léger */
-  padding: 20px;
-  border-radius: 10px;
-  margin: 20px auto;
-  max-width: 800px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 1s ease-in-out;
-  line-height: 1.6; /* Espacement entre les lignes */
+  font-family: 'Shrikhand', cursive;
 }
 
-h1 {
-  font-family: 'Shrikhand', cursive;
+.page-title {
   color: #89023E;
   text-align: center;
-  margin-bottom: 20px;
-  font-weight: 600; /* Semi-bold */
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  border-bottom: 3px solid #EA638C;
+  padding-bottom: 0.5rem;
+}
+
+.section {
+  margin-bottom: 2rem;
+  background-color: #FFD9DA;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 h2 {
-  font-family: 'Shrikhand', cursive;
   color: #30343F;
-  margin-top: 20px;
-  font-weight: 500; /* Medium */
+  border-bottom: 2px solid #EA638C;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-p, ul {
-  margin: 15px 0; /* Espacement entre les paragraphes */
-  line-height: 1.6; /* Espacement entre les lignes */
+.content-block {
+  line-height: 1.6;
 }
 
 ul {
   list-style-type: disc;
-  padding-left: 40px;
+  padding-left: 2rem;
+  margin-bottom: 1rem;
 }
 
-/* Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+ul ul {
+  list-style-type: circle;
+  margin-top: 0.5rem;
+}
+
+/* Accessibilité */
+a:focus,
+button:focus {
+  outline: 3px solid #89023E;
+  outline-offset: 2px;
 }
 </style>

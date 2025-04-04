@@ -1,76 +1,107 @@
 <template>
-    <div class="legal-page">
-      <h1>Mentions Légales</h1>
-      <p>Conformément aux dispositions des articles 6-III et 19 de la Loi n°2004-575 du 21 juin 2004 pour la Confiance dans l’économie numérique, dite L.C.E.N., nous portons à la connaissance des utilisateurs et visiteurs du site : <strong>www.monsite.com</strong> les informations suivantes :</p>
-      
-      <h2>1. Informations légales :</h2>
-      <p>
-        Statut du propriétaire : <br>
-        Propriétaire du site : MonSite <br>
-        Responsable de la publication : M. Dupont - contact@monsite.com <br>
-        Conception et développement : MonSite Team <br>
-        Hébergeur : OVH - 2 rue Kellermann 59100 Roubaix
-      </p>
-      
-      <h2>2. Conditions d'utilisation :</h2>
-      <p>L’utilisation du site <strong>www.monsite.com</strong> implique l’acceptation pleine et entière des conditions générales d’utilisation ci-après décrites.</p>
-      
-      <h2>3. Services fournis :</h2>
-      <p>Le site <strong>www.monsite.com</strong> a pour objet de fournir une information concernant l’ensemble des activités de la société.</p>
-      
-      <h2>4. Propriété intellectuelle :</h2>
-      <p>Toute reproduction, représentation, modification, publication, adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est interdite, sauf autorisation écrite préalable de : MonSite.</p>
-    </div>
-  </template>
-  
-  <script setup>
-  </script>
-  
-  <style scoped>
-  @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400&family=Shrikhand&display=swap');
-  
-  .legal-page {
-    background-color: #FEFCFB;
-    color: #1B2021;
-    font-family: 'Open Sans', sans-serif;
-    font-weight: 300; /* Réduire le poids de la police */
-    padding: 20px;
-    border-radius: 10px;
-    margin: 20px auto;
-    max-width: 800px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    animation: fadeIn 1s ease-in-out;
-    line-height: 1.6; /* Ajouter de l'espace entre les lignes */
+  <div class="mentions-legales-container" role="main" aria-labelledby="page-title">
+    <h1 id="page-title" class="page-title">Mentions Légales</h1>
+    
+    <section class="section" aria-labelledby="editeur-title">
+      <h2 id="editeur-title">Éditeur de l'Application</h2>
+      <div class="content-block">
+        <p><strong>Nom de l'application :</strong> Un file & un style</p>
+        <p><strong>Responsable de la publication :</strong> [Votre Nom]</p>
+        <p><strong>Adresse :</strong> [Adresse de votre établissement]</p>
+        <p><strong>Email :</strong> contact@unfilestyle.com</p>
+        <p><strong>Numéro de téléphone :</strong> +33 (0)0 00 00 00 00</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="hebergement-title">
+      <h2 id="hebergement-title">Hébergement</h2>
+      <div class="content-block">
+        <p>L'application est hébergée localement dans le cadre d'un projet académique de BTS Services Informatiques aux Organisations (SIO). Aucun hébergeur tiers n'est utilisé pour ce projet.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="propriete-title">
+      <h2 id="propriete-title">Propriété Intellectuelle</h2>
+      <div class="content-block">
+        <p>Tous les contenus présents sur l'application (textes, images, logos, etc.) sont protégés par les lois sur la propriété intellectuelle. Toute reproduction, modification ou distribution sans autorisation préalable est strictement interdite.</p>
+        <p>Les marques et logos utilisés sont la propriété exclusive de leurs détenteurs respectifs.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="responsabilite-title">
+      <h2 id="responsabilite-title">Responsabilité</h2>
+      <div class="content-block">
+        <p>L'application est développée dans un cadre académique et n'est pas destinée à une utilisation commerciale. L'éditeur décline toute responsabilité en cas de dysfonctionnement ou d'erreur liée au code ou aux données.</p>
+        <p>Les utilisateurs utilisent l'application à leurs propres risques.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="loi-title">
+      <h2 id="loi-title">Loi Applicable</h2>
+      <div class="content-block">
+        <p>Les présentes mentions légales sont régies par la loi française. Tout litige découlant de l'interprétation ou de l'exécution des présentes sera soumis aux tribunaux compétents du ressort de [Votre Ville].</p>
+      </div>
+    </section>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'MentionsLegales',
+  metaInfo: {
+    title: 'Mentions Légales - Un file & un style',
+    meta: [
+      { 
+        name: 'description', 
+        content: 'Mentions légales de l\'application Un file & un style, projet académique de BTS SIO' 
+      }
+    ]
   }
-  
-  h1 {
-    font-family: 'Shrikhand', cursive;
-    color: #89023E;
-    text-align: center;
-    margin-bottom: 20px;
-    font-weight: 600; /* Semi-bold */
-  }
-  
-  h2 {
-    font-family: 'Shrikhand', cursive;
-    color: #30343F;
-    margin-top: 20px;
-    font-weight: 500; /* Medium */
-  }
-  
-  p {
-    margin: 15px 0; /* Ajouter de l'espace entre les paragraphes */
-    line-height: 1.6; /* Ajouter de l'espace entre les lignes */
-  }
-  
-  /* Animation */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-  </style>
-  
+}
+</script>
+
+<style scoped>
+.mentions-legales-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: #FEFCFB;
+  color: #1B2021;
+  font-family: 'Shrikhand', cursive;
+}
+
+.page-title {
+  color: #89023E;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  border-bottom: 3px solid #EA638C;
+  padding-bottom: 0.5rem;
+}
+
+.section {
+  margin-bottom: 2rem;
+  background-color: #FFD9DA;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+h2 {
+  color: #30343F;
+  border-bottom: 2px solid #EA638C;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.content-block {
+  line-height: 1.6;
+}
+
+/* Accessibilité */
+a:focus,
+button:focus {
+  outline: 3px solid #89023E;
+  outline-offset: 2px;
+}
+</style>
