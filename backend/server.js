@@ -29,6 +29,7 @@ import crypto from 'crypto';
 
 
 
+
 // Configuration du logger
 const logger = winston.createLogger({
   level: 'info',
@@ -113,6 +114,7 @@ app.use('/api/user-profile', profileRoutes); // Ajoutez cette ligne comme alias
 app.use('/api/profile-details', profileDetailRoutes);
 app.use('/api/users/favorites', favoriteRoutes);
 app.use('/api/textiles', textileRoutes);
+
 
 
 // Après vos autres configurations

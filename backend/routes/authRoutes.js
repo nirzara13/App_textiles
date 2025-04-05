@@ -1,5 +1,5 @@
 import { sequelize } from '../server.js';
-import User from '../models/User.js';
+import User from './models/User.js';
 
 const UserModel = User(sequelize);
 

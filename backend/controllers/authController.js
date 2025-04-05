@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 const { User } = models;
 
 // Durée de validité du token : 24 heures
-const TOKEN_DURATION = '24h';
+const TOKEN_DURATION = '30m';
 
 class AuthController {
   // Inscription
