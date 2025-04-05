@@ -102,7 +102,6 @@ app.use(session({
 app.use('/api/users', userRoutes);
 
 app.use('/api/profile', profileRoutes);
-app.use('/api/favorites', favoriteRoutes);
 app.use('/api/tissus', tissuRoutes);
 app.use('/api/compositions', compositionRoutes);
 app.use('/api', contactRoutes);
@@ -114,12 +113,6 @@ app.use('/api/user-profile', profileRoutes); // Ajoutez cette ligne comme alias
 app.use('/api/profile-details', profileDetailRoutes);
 app.use('/api/users/favorites', favoriteRoutes);
 app.use('/api/textiles', textileRoutes);
-
-
-
-// Après vos autres configurations
-// app.use('/api/users', favoriteRoutes);
-
 
 
 // Middleware d'erreur
