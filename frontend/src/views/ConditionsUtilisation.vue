@@ -56,7 +56,7 @@
     <section class="section" aria-labelledby="loi-title">
       <h2 id="loi-title">Loi Applicable</h2>
       <div class="content-block">
-        <p>Les présentes Conditions Générales d'Utilisation sont régies par la loi française. Tout litige découlant de l'interprétation ou de l'exécution des présentes sera soumis aux tribunaux compétents du ressort de [Votre Ville].</p>
+        <p>Les présentes Conditions Générales d'Utilisation sont régies par la loi française. Tout litige découlant de l'interprétation ou de l'exécution des présentes sera soumis aux tribunaux compétents du ressort de Paris</p>
       </div>
     </section>
   </div>

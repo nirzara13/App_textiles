@@ -1,53 +1,5 @@
 
 
-//CODE FONCTIONNEL
-
-// const Favorite = (sequelize, DataTypes) => {
-//   const Favorite = sequelize.define('Favorite', {
-//     user_id: {
-//       type: DataTypes.INTEGER,
-//       allowNull: false,
-//       references: {
-//         model: 'users',
-//         key: 'id'
-//       }
-//     },
-//     textile_id: {
-//       type: DataTypes.INTEGER,
-//       allowNull: false,
-//       references: {
-//         model: 'textiles',
-//         key: 'id'
-//       }
-//     }
-//   }, {
-//     tableName: 'favorites',
-//     timestamps: true,
-//     createdAt: 'created_at',
-//     updatedAt: 'updated_at'
-//   });
-
-//   Favorite.associate = (models) => {
-//     Favorite.belongsTo(models.User, {
-//       foreignKey: 'user_id',
-//       as: 'user'
-//     });
-//     Favorite.belongsTo(models.Textile, {
-//       foreignKey: 'textile_id',
-//       as: 'textile'
-//     });
-//   };
-
-//   return Favorite;
-// };
-
-// export default Favorite;
-
-
-
-
-
-
 // models/favorite.js
 
 // Pour les imports ESM (si vous utilisez ES modules)

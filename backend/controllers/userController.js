@@ -1,126 +1,4 @@
-// import bcrypt from 'bcrypt';
-// import User from '../models/user.js';
 
-// // Fonction d'inscription
-// const inscrireUtilisateur = async (req, res) => {
-//   const { email, password } = req.body;
-
-//   try {
-//     console.log('Demande d\'inscription reçue avec email:', email);
-
-//     const utilisateurExistant = await User.findOne({ where: { email } });
-//     if (utilisateurExistant) {
-//       console.log('Utilisateur déjà existant:', utilisateurExistant);
-//       return res.status(400).json({ message: 'Utilisateur déjà existant' });
-//     }
-
-//     const hashedPassword = await bcrypt.hash(password, 10);
-//     console.log('Mot de passe hashé:', hashedPassword);
-
-//     const utilisateur = await User.create({
-//       email,
-//       mot_de_passe: hashedPassword,
-//     });
-//     console.log('Utilisateur créé:', utilisateur);
-
-//     res.status(201).json({ message: 'Utilisateur créé avec succès', utilisateur });
-//   } catch (error) {
-//     console.error('Erreur lors de l\'inscription :', error);
-//     res.status(500).json({ message: 'Erreur serveur', error: error.message });
-//   }
-// };
-
-// // Fonction de connexion
-// const connecterUtilisateur = async (req, res) => {
-//   const { email, password } = req.body;
-
-//   try {
-//     console.log('Demande de connexion reçue avec email:', email);
-
-//     const utilisateur = await User.findOne({ where: { email } });
-//     if (!utilisateur) {
-//       console.log('Utilisateur non trouvé');
-//       return res.status(400).json({ message: 'Utilisateur non trouvé' });
-//     }
-
-//     const motDePasseValide = await bcrypt.compare(password, utilisateur.mot_de_passe);
-//     if (!motDePasseValide) {
-//       console.log('Mot de passe incorrect');
-//       return res.status(400).json({ message: 'Mot de passe incorrect' });
-//     }
-
-//     console.log('Connexion réussie pour l\'utilisateur:', utilisateur);
-//     res.status(200).json({ message: 'Connexion réussie', utilisateur });
-//   } catch (error) {
-//     console.error('Erreur lors de la connexion :', error);
-//     res.status(500).json({ message: 'Erreur serveur', error: error.message });
-//   }
-// };
-
-// // Fonction pour récupérer les informations de l'utilisateur
-// const getProfile = async (req, res) => {
-//   const { userId } = req.params;
-
-//   try {
-//     const utilisateur = await User.findByPk(userId);
-//     if (!utilisateur) {
-//       return res.status(404).json({ message: 'Utilisateur non trouvé' });
-//     }
-
-//     res.status(200).json({ utilisateur });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Erreur serveur' });
-//   }
-// };
-
-// // Fonction pour mettre à jour les informations de l'utilisateur
-// const updateProfile = async (req, res) => {
-//   const { userId } = req.params;
-//   const { email, password } = req.body;
-
-//   try {
-//     const utilisateur = await User.findByPk(userId);
-//     if (!utilisateur) {
-//       return res.status(404).json({ message: 'Utilisateur non trouvé' });
-//     }
-
-//     if (email) {
-//       utilisateur.email = email;
-//     }
-
-//     if (password) {
-//       const hashedPassword = await bcrypt.hash(password, 10);
-//       utilisateur.mot_de_passe = hashedPassword;
-//     }
-
-//     await utilisateur.save();
-//     res.status(200).json({ message: 'Profil mis à jour avec succès', utilisateur });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Erreur serveur' });
-//   }
-// };
-
-// // Fonction pour supprimer un compte utilisateur
-// const deleteProfile = async (req, res) => {
-//   const { userId } = req.params;
-
-//   try {
-//     const utilisateur = await User.findByPk(userId);
-//     if (!utilisateur) {
-//       return res.status(404).json({ message: 'Utilisateur non trouvé' });
-//     }
-
-//     await utilisateur.destroy();
-//     res.status(200).json({ message: 'Compte supprimé avec succès' });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ message: 'Erreur serveur' });
-//   }
-// };
-
-// export { inscrireUtilisateur, connecterUtilisateur, getProfile, updateProfile, deleteProfile };
 
 // controllers/userController.js
 import db from '../models/index.js';
@@ -411,7 +289,7 @@ export const removeFavorite = async (req, res) => {
 
 export const getProfileDetails = async (req, res) => {
   try {
-    const user = await User.findByPk(req.user.id);
+    const user = await db.User.findByPk(req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -424,7 +302,7 @@ export const getProfileDetails = async (req, res) => {
 
 export const updateProfileDetails = async (req, res) => {
   try {
-    const user = await User.findByPk(req.user.id);
+    const user = await db.User.findByPk(req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -439,7 +317,7 @@ export const updateProfileDetails = async (req, res) => {
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await User.findAll();
+    const users = await db.User.findAll();
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
@@ -448,7 +326,7 @@ export const getAllUsers = async (req, res) => {
 
 export const updateUserRole = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id);
+    const user = await db.User.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -462,7 +340,7 @@ export const updateUserRole = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
-    const user = await User.findByPk(req.params.id);
+    const user = await db.User.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }

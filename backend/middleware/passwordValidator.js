@@ -1,26 +1,3 @@
-// // middleware/passwordValidator.js
-// const passwordValidator = (req, res, next) => {
-//     const { password } = req.body;
-    
-//     if (password.length > 10) {
-//       return res.status(400).json({ message: 'Le mot de passe ne doit pas dépasser 10 caractères' });
-//     }
-    
-//     const hasUpperCase = /[A-Z]/.test(password);
-//     const hasLowerCase = /[a-z]/.test(password);
-//     const hasNumber = /[0-9]/.test(password);
-//     const specialCharsCount = (password.match(/[!@#$%^&*(),.?":{}|<>]/g) || []).length;
-    
-//     if (!hasUpperCase || !hasLowerCase || !hasNumber || specialCharsCount < 2) {
-//       return res.status(400).json({
-//         message: 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et deux caractères spéciaux'
-//       });
-//     }
-    
-//     next();
-//   };
-  
-//   module.exports = passwordValidator;
 
 
 // middlewares/passwordValidator.js

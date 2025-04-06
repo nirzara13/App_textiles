@@ -6,10 +6,10 @@
       <h2 id="editeur-title">Éditeur de l'Application</h2>
       <div class="content-block">
         <p><strong>Nom de l'application :</strong> Un file & un style</p>
-        <p><strong>Responsable de la publication :</strong> [Votre Nom]</p>
-        <p><strong>Adresse :</strong> [Adresse de votre établissement]</p>
+        <p><strong>Responsable de la publication :</strong> Nirzara BARUA</p>
+        <p><strong>Adresse :</strong> 69 R. de Turbigo, 75003 Paris</p>
         <p><strong>Email :</strong> contact@unfilestyle.com</p>
-        <p><strong>Numéro de téléphone :</strong> +33 (0)0 00 00 00 00</p>
+        <p><strong>Numéro de téléphone :</strong> +33 (0)1 23 45 67 89</p>
       </div>
     </section>
 
@@ -39,7 +39,7 @@
     <section class="section" aria-labelledby="loi-title">
       <h2 id="loi-title">Loi Applicable</h2>
       <div class="content-block">
-        <p>Les présentes mentions légales sont régies par la loi française. Tout litige découlant de l'interprétation ou de l'exécution des présentes sera soumis aux tribunaux compétents du ressort de [Votre Ville].</p>
+        <p>Les présentes mentions légales sont régies par la loi française. Tout litige découlant de l'interprétation ou de l'exécution des présentes sera soumis aux tribunaux compétents du ressort de Paris.</p>
       </div>
     </section>
   </div>

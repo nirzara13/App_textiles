@@ -1,4 +1,4 @@
-// frontend/axios.js
+// frontend/src/axios.js
 import axios from 'axios';
 
 // Configuration d'axios avec une URL de base

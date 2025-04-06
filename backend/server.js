@@ -13,7 +13,6 @@ import databaseConfig from './config/database.js';
 import profileRoutes from './routes/profileRoutes.js';
 import favoriteRoutes from './routes/favoriteRoutes.js';
 dotenv.config();
-import profileDetailRoutes from './routes/profileDetailRoutes.js';
 import textileRoutes from './routes/textileRoutes.js';
 
 import tissuRoutes from './routes/tissuRoutes.js';
@@ -110,7 +109,6 @@ app.use('/api', contactRoutes);
 // Configuration des routes
 app.use('/api/profile', profileRoutes);
 app.use('/api/user-profile', profileRoutes); // Ajoutez cette ligne comme alias
-app.use('/api/profile-details', profileDetailRoutes);
 app.use('/api/users/favorites', favoriteRoutes);
 app.use('/api/textiles', textileRoutes);
 
