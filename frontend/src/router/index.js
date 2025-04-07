@@ -75,16 +75,26 @@ const router = createRouter({
   }
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   
+  // Si la route requiert une authentification
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login');
-  } else if (to.meta.requiresAdmin && authStore.userRole !== 'admin') {
-    next('/login');
-  } else {
-    next();
+    // Rediriger vers login avec l'URL actuelle comme redirect après connexion
+    next({ name: 'Login', query: { redirect: to.fullPath } });
+    return;
   }
+  
+  // Si admin requis mais utilisateur non admin
+  if (to.meta.requiresAdmin && authStore.userRole !== 'admin') {
+    // Rediriger vers la page d'accueil
+    next({ name: 'Home' });
+    return;
+  }
+  
+  // Pour toutes les autres routes, continuer normalement
+  next();
 });
+
 
 export default router

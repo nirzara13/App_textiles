@@ -277,5 +277,7 @@ router.post('/favorites/:textileId', favoritesLimiter, addFavorite);
  *         description: Favori retiré avec succès
  */
 router.delete('/favorites/:textileId', favoritesLimiter, removeFavorite);
+// routes/userRoutes.js
+router.post('/refresh-token', AuthController.refreshToken);
 
 export default router;

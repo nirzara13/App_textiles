@@ -97,26 +97,107 @@ class AuthController {
         process.env.JWT_SECRET,
         { expiresIn: TOKEN_DURATION }
       );
+
+      const refreshToken = jwt.sign(
+        { 
+          userId: user.id,
+          email: user.email
+        },
+        process.env.JWT_SECRET, // Utilisez votre clé JWT existante
+        { expiresIn: '2d' } // Valide pendant 7 jours
+      );
   
-      res.json({
-        success: true,
-        message: 'Connexion réussie',
-        token,
-        user: {
-          id: user.id,
-          email: user.email,
-          role: user.role  // Renvoyer le rôle
-        }
-      });
-    } catch (error) {
-      console.error('Erreur lors de la connexion:', error);
-      res.status(500).json({
+       // Mettre à jour l'utilisateur avec le refresh token
+    await user.update({ refreshToken });
+
+    res.json({
+      success: true,
+      message: 'Connexion réussie',
+      token,
+      refreshToken, // Renvoyer le refresh token
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role  // Renvoyer le rôle
+      }
+    });
+  } catch (error) {
+    console.error('Erreur lors de la connexion:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors de la connexion'
+    });
+  }
+}
+
+// Ajouter cette nouvelle méthode pour le refresh token
+async refreshToken(req, res) {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(401).json({
         success: false,
-        message: 'Erreur lors de la connexion'
+        message: 'Refresh token requis'
       });
     }
-  }
 
+    // Vérifier le refresh token
+    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+
+    // Trouver l'utilisateur avec ce refresh token
+    const user = await User.findOne({ 
+      where: { 
+        id: decoded.userId, 
+        refreshToken: refreshToken 
+      } 
+    });
+
+    if (!user) {
+      return res.status(403).json({
+        success: false,
+        message: 'Refresh token invalide'
+      });
+    }
+
+    // Générer un nouveau token principal
+    const newToken = jwt.sign(
+      { 
+        userId: user.id, 
+        email: user.email,
+        role: user.role
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: TOKEN_DURATION }
+    );
+
+    res.json({
+      success: true,
+      token: newToken
+    });
+  } catch (error) {
+    console.error('Erreur lors du rafraîchissement du token:', error);
+    
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(403).json({
+        success: false,
+        message: 'Token invalide'
+      });
+    }
+
+    if (error.name === 'TokenExpiredError') {
+      return res.status(403).json({
+        success: false,
+        message: 'Token expiré'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Erreur lors du rafraîchissement du token'
+    });
+  }
+}
 
   // Récupérer le profil de l'utilisateur
   async getProfile(req, res) {

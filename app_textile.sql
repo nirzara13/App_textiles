@@ -3,6 +3,7 @@ CREATE DATABASE IF NOT EXISTS textile_app;
 USE textile_app;
 
 -- Table des utilisateurs
+-- Table des utilisateurs
 CREATE TABLE IF NOT EXISTS users (
     id INT NOT NULL AUTO_INCREMENT,
     email VARCHAR(255) NOT NULL,
@@ -10,6 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     role ENUM('user', 'admin') NOT NULL DEFAULT 'user',
+    refreshToken VARCHAR(1024),
+    last_activity TIMESTAMP NULL,
     PRIMARY KEY (id),
     UNIQUE KEY (email)
 );
